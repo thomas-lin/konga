@@ -1,0 +1,24 @@
+FROM node:12.16.3-buster
+
+COPY . /app
+
+WORKDIR /app
+
+RUN apt-get update \
+  && apt-get install -y git ca-certificates \
+  && npm install -g bower \
+  && npm --unsafe-perm --production install \
+  && apt-get clean \
+  && rm -rf \
+  /app/.git \
+  /app/screenshots \
+  /app/test \
+  && adduser -H -S -g "Konga service owner" -D -u 1200 -s /sbin/nologin konga \
+  && mkdir /app/kongadata /app/.tmp \
+  && chown -R 1200:1200 /app/views /app/kongadata /app/.tmp
+
+EXPOSE 1337
+
+VOLUME /app/kongadata
+
+ENTRYPOINT ["/app/start.sh"]
